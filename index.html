@@ -3,6 +3,8 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <title>Open in Browser</title>
         <style>
             body {
@@ -121,13 +123,18 @@
 
                 if (isIOS()) {
                     // iOS specific handling
-                    window.location.href = currentURL.replace("https://", "https://apps.apple.com/");
+                    // Try to open in Safari directly
+                    window.location.href = `safari-https://${window.location.host}${window.location.pathname}${window.location.search}`;
+
                     setTimeout(() => {
-                        window.location.href = `x-web-search://?${encodedURL}`;
-                    }, 1000);
+                        // Fallback to opening in default browser using universal links
+                        window.location.href = currentURL.replace("https://", "https://");
+                    }, 100);
+
                     setTimeout(() => {
-                        window.location.href = currentURL;
-                    }, 2000);
+                        // If all else fails, try opening directly
+                        window.open(currentURL, "_system");
+                    }, 200);
                 } else if (isAndroid()) {
                     // Android specific handling
                     window.location.href = `intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;end`;
