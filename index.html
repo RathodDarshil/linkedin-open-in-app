@@ -3,8 +3,6 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <title>Open in Browser</title>
         <style>
             body {
@@ -19,7 +17,6 @@
                 background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
                 text-align: center;
             }
-
             .container {
                 background: white;
                 padding: 2rem;
@@ -28,18 +25,15 @@
                 max-width: 600px;
                 width: 90%;
             }
-
             h1 {
                 color: #2c3e50;
                 margin-bottom: 1rem;
             }
-
             p {
                 color: #34495e;
                 line-height: 1.6;
                 margin-bottom: 1.5rem;
             }
-
             .button {
                 background-color: #0077b5;
                 color: white;
@@ -52,11 +46,9 @@
                 text-decoration: none;
                 display: inline-block;
             }
-
             .button:hover {
                 background-color: #005582;
             }
-
             #linkedinMessage {
                 display: none;
                 margin-top: 1rem;
@@ -65,15 +57,8 @@
                 border-radius: 6px;
                 border-left: 4px solid #0077b5;
             }
-
             .hidden {
                 display: none !important;
-            }
-
-            #deviceInfo {
-                font-size: 0.8rem;
-                color: #666;
-                margin-top: 1rem;
             }
         </style>
     </head>
@@ -90,94 +75,39 @@
                 <p>You're viewing this page in a regular browser.</p>
                 <p>Everything looks good! 👍</p>
             </div>
-            <div id="deviceInfo"></div>
-            <div style="font-size: 0.8rem; color: #666; margin-top: 2rem; text-align: center">v1.0.0</div>
+            <div style="font-size: 0.8rem; color: #666; margin-top: 2rem; text-align: center">v2.0.0</div>
         </div>
-
         <script>
             function isLinkedInBrowser() {
                 const userAgent = navigator.userAgent.toLowerCase();
-                return (
-                    userAgent.includes("linkedin") ||
-                    (userAgent.includes("mozilla") && userAgent.includes("linkedin")) ||
-                    document.documentElement.classList.contains("linkedin")
-                );
+                return userAgent.includes("linkedin");
             }
-
-            function isIOS() {
-                const userAgent = navigator.userAgent.toLowerCase();
-                return /iphone|ipad|ipod/.test(userAgent);
-            }
-
-            function isAndroid() {
-                const userAgent = navigator.userAgent.toLowerCase();
-                return /android/.test(userAgent);
-            }
-
             function getCurrentURL() {
                 return window.location.href;
             }
-
-            function attemptRedirect() {
-                const currentURL = getCurrentURL();
-                const encodedURL = encodeURIComponent(currentURL);
-
-                if (isIOS()) {
-                    // iOS specific handling
-                    // Try to open in Safari directly
-                    window.location.href = `safari-https://${window.location.host}${window.location.pathname}${window.location.search}`;
-
-                    setTimeout(() => {
-                        // Fallback to opening in default browser using universal links
-                        window.location.href = currentURL.replace("https://", "https://");
-                    }, 100);
-
-                    setTimeout(() => {
-                        // If all else fails, try opening directly
-                        window.open(currentURL, "_system");
-                    }, 200);
-                } else if (isAndroid()) {
-                    // Android specific handling
-                    window.location.href = `intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;end`;
-                    setTimeout(() => {
-                        window.location.href = `googlechrome://navigate?url=${encodedURL}`;
-                    }, 1000);
-                    setTimeout(() => {
-                        window.location.href = currentURL;
-                    }, 2000);
-                }
-            }
-
             document.addEventListener("DOMContentLoaded", function () {
                 const linkedinMessage = document.getElementById("linkedinMessage");
                 const regularBrowser = document.getElementById("regularBrowser");
                 const browserInfo = document.getElementById("browserInfo");
                 const openInBrowserBtn = document.getElementById("openInBrowser");
-                const deviceInfo = document.getElementById("deviceInfo");
-
                 if (isLinkedInBrowser()) {
                     linkedinMessage.style.display = "block";
                     regularBrowser.classList.add("hidden");
                     browserInfo.textContent = "LinkedIn in-app browser detected";
-
                     // Set up the button to open in default browser
                     openInBrowserBtn.href = getCurrentURL();
-                    openInBrowserBtn.addEventListener("click", function (e) {
-                        e.preventDefault();
-                        attemptRedirect();
-                    });
-
                     // Attempt automatic redirect
-                    attemptRedirect();
-
-                    // Show device info for debugging
-                    const deviceType = isIOS() ? "iOS" : isAndroid() ? "Android" : "Other";
-                    deviceInfo.textContent = `Device type: ${deviceType}`;
+                    window.location.href = "googlechrome://navigate?url=" + encodeURIComponent(getCurrentURL());
+                    setTimeout(() => {
+                        window.location.href = "firefox://open-url?url=" + encodeURIComponent(getCurrentURL());
+                    }, 1000);
+                    setTimeout(() => {
+                        window.location.href = getCurrentURL();
+                    }, 2000);
                 } else {
                     linkedinMessage.style.display = "none";
                     regularBrowser.classList.remove("hidden");
                     browserInfo.textContent = "Regular browser detected";
-                    deviceInfo.style.display = "none";
                 }
             });
         </script>
